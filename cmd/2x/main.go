@@ -57,7 +57,7 @@ func main() {
           w.WriteHeader(302)
         }
       case "thread dat-out":
-        w.WriteHeader(416)
+        w.WriteHeader(302)
       default:
         w.WriteHeader(500)
       }
