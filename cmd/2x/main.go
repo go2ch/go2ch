@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httputil"
+	"os"
 	"regexp"
 
 	"github.com/go2ch/go2ch"
@@ -21,6 +22,7 @@ func main() {
 	if *appKey == "" || *hmKey == "" {
 		fmt.Println("no api key")
 		flag.Usage()
+		os.Exit(1)
 	}
 
 	re := regexp.MustCompile(`^http://(\w+)\.(?:2ch\.net|bbspink\.com)/(\w+)/dat/(\d+)\.dat`)
