@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -26,6 +27,11 @@ type Client struct {
 	pass          string
 	session       string
 	sessionExpire time.Time
+}
+
+type response struct {
+	io.Reader
+	io.Closer
 }
 
 func (c *Client) makeRequest(path string, headers map[string]string, data string) (*http.Response, error) {
@@ -134,7 +140,12 @@ func (c *Client) Get(server, bbs, key string, reqHeaders map[string]string) (*ht
 		if addedGzip && resp.Header.Get("Content-Encoding") == "gzip" {
 			resp.Header.Del("Content-Encoding")
 			resp.Header.Del("Content-Length")
-			resp.Body, err = gzip.NewReader(resp.Body)
+			resp.ContentLength = -1
+			reader, err := gzip.NewReader(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = response{reader, resp.Body}
 		}
 		return resp, nil
 	case "8": // StatusCode: 200/501
