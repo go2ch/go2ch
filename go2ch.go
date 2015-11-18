@@ -19,9 +19,9 @@ type Client struct {
 	AppKey string
 	HmKey  string
 
+	Client        *http.Client
+	MaxRetry      int
 	SessionMaxAge time.Duration
-
-	Client *http.Client
 
 	user          string
 	pass          string
@@ -48,13 +48,21 @@ func (c *Client) makeRequest(path string, headers map[string]string, data string
 		req.Header.Add(k, v)
 	}
 
-	resp, err := c.Client.Do(req)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
+	for i := 0; i <= c.MaxRetry; i++ {
+		resp, err := c.Client.Do(req)
+		if err != nil {
+			return nil, err
+		}
+
+		if resp.StatusCode == 400 || resp.StatusCode == 500 {
+			resp.Body.Close()
+			continue
+		}
+
+		return resp, nil
 	}
 
-	return resp, nil
+	return nil, fmt.Errorf("response error")
 }
 
 // Auth sends authentication request
@@ -74,11 +82,6 @@ func (c *Client) Auth(user, pass string) error {
 	resp, err := c.makeRequest("/v1/auth/", headers, data)
 	if err != nil {
 		return err
-	}
-
-	if resp.StatusCode == 500 {
-		resp.Body.Close()
-		return c.Auth(user, pass)
 	}
 
 	defer resp.Body.Close()
@@ -159,8 +162,6 @@ func (c *Client) Get(server, bbs, key string, reqHeaders map[string]string) (*ht
 	case 401:
 		c.session = ""
 		fallthrough
-	case 400:
-		fallthrough
 	case 502:
 		return c.Get(server, bbs, key, reqHeaders)
 	default:
@@ -180,6 +181,7 @@ func NewClient(appKey, hmKey string) *Client {
 		AppKey:        appKey,
 		HmKey:         hmKey,
 		SessionMaxAge: 6 * time.Hour,
+		MaxRetry:      5,
 		Client:        &http.Client{Transport: tr},
 	}
 }
