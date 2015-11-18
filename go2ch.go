@@ -85,14 +85,16 @@ func (c *Client) Auth(user, pass string) error {
 	}
 
 	defer resp.Body.Close()
-	buf := make([]byte, 26)
-	resp.Body.Read(buf)
 
-	if string(buf) == "SESSION-ID=Monazilla/1.00:" {
-		session, _ := ioutil.ReadAll(resp.Body)
+	buf, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	if string(buf[:26]) == "SESSION-ID=Monazilla/1.00:" {
 		c.user = user
 		c.pass = pass
-		c.session = string(session)
+		c.session = string(buf[26:])
 		c.sessionExpire = time.Now().Add(c.SessionMaxAge)
 		return nil
 	}
