@@ -1,21 +1,18 @@
 language: go
 go:
   - 1.5.1
-env: "/home/travis/gopath/bin:$PATH"
-install:
+sudo: false
+before_deploy:
   - go get github.com/laher/goxc
-script:
-  - cd cmd/2x; goxc -bc "windows,darwin" -d ../../
+  - goxc -bc "windows,darwin" -d . -wd cmd/2x
 deploy:
   provider: releases
   api_key:
     secure: EAia2YOGzoOF1nhbMgxY7A4j3IbLNf32NrG9JF15q7j5yg1yW+Fb/nm6fJfQ0OcIryc/VTVhLHn7QmBh77s9XTkcaEFEYlbGaYsF5w7Qk7pM2SH96zQxukz9VXCg7YAmVN6vBf5KBuEBnTlIDXdUJ2AznhMiYZHR9rxl1OpJCTR6jDZEdXvBI0Rhc40LYjb38GNgwqRYNz/uCJzeH2VU8oa4VvswZfvYv2jhmYZbh66117UxY0zCIhGn8iMBDK44azQV4ZvW1aIVdheO2QzN8Wx0UP8y4xnVE0t5m6bkqOXRIjcJzSuTje233NKM71hGyV5srnGnT+4OXfKW/cRfd7WoChfpIOvtH1SBlvLerlDy8bHfMhff2enz0o3eS1y9Qsi19yJojUvw1WeIBUbB3wteG913/nVheEbajlhxr6Pl74KPsrSGCCG/i+hFXjKBDjYpj1SDgt+CUmrWfwZlCIpW5c3XAIy+MqRo9ZbBqRWrKXXOG4a3x3uBcXVjGA3WjnVrkM+/FRrcwoNMuwEJbAk+0tjHdUKTzrjUo3VbmDv4ktRQuJ7oaw8uDH/0CkSo0ElRWdxtIr2pGiY08fdpkeEOzZ02x7ohkoLsGTaNfZHAMwKhMSelmTxLI91OHAbzWh2gowL+QwJkT3DSCLsL2b+D0l5pw+xLY0MsxLShM6A=
-  file:
-    - snapshot/2x_windows_386.zip
-    - snapshot/2x_windows_amd64.zip
-    - snapshot/2x_darwin_amd64.zip
-    - snapshot/2x_darwin_386.zip
+  file_glob: true
+  file: snapshot/*.zip
   skip_cleanup: true
   on:
+    go: 1.5.1
     tags: true
     all_branches: true
