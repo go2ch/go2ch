@@ -9,7 +9,6 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"net/http/httputil"
 	"strconv"
 	"strings"
 	"time"
@@ -104,10 +103,6 @@ func (c *Client) Auth(user, pass string) error {
 	case "ng (appkey incorrect length)":
 		return fmt.Errorf("appkey incorrect length")
 	}
-
-	// debug
-	dump, _ := httputil.DumpResponse(resp, true)
-	fmt.Printf("%s\n\n", dump)
 
 	return fmt.Errorf("auth error")
 }
