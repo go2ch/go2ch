@@ -20,6 +20,7 @@ type Client struct {
 	HmKey  string
 
 	Client        *http.Client
+	BaseURL       string
 	MaxRetry      int
 	SessionMaxAge time.Duration
 
@@ -35,7 +36,7 @@ type response struct {
 }
 
 func (c *Client) makeRequest(path string, headers map[string]string, data string) (*http.Response, error) {
-	url := "https://api.2ch.net" + path
+	url := c.BaseURL + path
 	req, err := http.NewRequest("POST", url, strings.NewReader(data))
 	if err != nil {
 		return nil, err
@@ -187,8 +188,9 @@ func NewClient(appKey, hmKey string) *Client {
 	return &Client{
 		AppKey:        appKey,
 		HmKey:         hmKey,
-		SessionMaxAge: 6 * time.Hour,
-		MaxRetry:      5,
 		Client:        &http.Client{Transport: tr},
+		BaseURL:       "https://api.2ch.net",
+		MaxRetry:      5,
+		SessionMaxAge: 6 * time.Hour,
 	}
 }
