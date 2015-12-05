@@ -17,6 +17,8 @@ var (
 	appKey  = flag.String("appkey", "", "2ch API appkey")
 	hmKey   = flag.String("hmkey", "", "2ch API hmkey")
 	addr    = flag.String("addr", ":8080", "listening address")
+	roninID = flag.String("id", "", "Ronin login ID")
+	roninPW = flag.String("pw", "", "Ronin login password")
 
 	datURL = regexp.MustCompile(`^http://(\w+)\.(?:2ch\.net|bbspink\.com)/(\w+)/dat/(\d+)\.dat`)
 )
@@ -32,6 +34,10 @@ func main() {
 
 	api := go2ch.NewClient(*appKey, *hmKey)
 	api.BaseURL = *baseURL
+
+	if *roninID != "" && *roninPW != "" {
+		api.Auth(*roninID, *roninPW)
+	}
 
 	proxy := &httputil.ReverseProxy{Director: func(req *http.Request) {}}
 
