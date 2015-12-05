@@ -12,11 +12,15 @@ import (
 	"github.com/go2ch/go2ch"
 )
 
-func main() {
-	appKey := flag.String("appkey", "", "2ch API appkey")
-	hmKey := flag.String("hmkey", "", "2ch API hmkey")
-	addr := flag.String("addr", ":8080", "listening address")
+var (
+	appKey = flag.String("appkey", "", "2ch API appkey")
+	hmKey  = flag.String("hmkey", "", "2ch API hmkey")
+	addr   = flag.String("addr", ":8080", "listening address")
 
+	datURL = regexp.MustCompile(`^http://(\w+)\.(?:2ch\.net|bbspink\.com)/(\w+)/dat/(\d+)\.dat`)
+)
+
+func main() {
 	flag.Parse()
 
 	if *appKey == "" || *hmKey == "" {
@@ -25,13 +29,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	re := regexp.MustCompile(`^http://(\w+)\.(?:2ch\.net|bbspink\.com)/(\w+)/dat/(\d+)\.dat`)
-
 	api := go2ch.NewClient(*appKey, *hmKey)
 	proxy := &httputil.ReverseProxy{Director: func(req *http.Request) {}}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		m := re.FindStringSubmatch(req.URL.String())
+		m := datURL.FindStringSubmatch(req.URL.String())
 		if m == nil {
 			proxy.ServeHTTP(w, req)
 			return
