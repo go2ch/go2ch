@@ -55,9 +55,14 @@ func (c *Client) makeRequest(path string, headers map[string]string, data string
 			return nil, err
 		}
 
-		if resp.StatusCode == 400 || resp.StatusCode == 500 {
-			resp.Body.Close()
-			continue
+		switch resp.StatusCode {
+		case 403:
+			return nil, fmt.Errorf("forbidden")
+		case 400, 500, 502:
+			if resp.Header.Get("Server") == "cloudflare-nginx" {
+				resp.Body.Close()
+				continue
+			}
 		}
 
 		return resp, nil
@@ -169,8 +174,6 @@ func (c *Client) Get(server, bbs, key string, reqHeaders map[string]string) (*ht
 	switch resp.StatusCode {
 	case 401:
 		c.session = ""
-		fallthrough
-	case 502:
 		return c.Get(server, bbs, key, reqHeaders)
 	default:
 		return nil, fmt.Errorf("unknown error")
