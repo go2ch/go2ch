@@ -19,10 +19,11 @@ type Client struct {
 	AppKey string
 	HmKey  string
 
-	Client        *http.Client
+	Transport     *http.Transport
 	BaseURL       string
 	MaxRetry      int
 	SessionMaxAge time.Duration
+	Timeout       time.Duration
 
 	user          string
 	pass          string
@@ -37,21 +38,29 @@ type response struct {
 
 func (c *Client) makeRequest(path string, headers map[string]string, data string) (*http.Response, error) {
 	url := c.BaseURL + path
-	req, err := http.NewRequest("POST", url, strings.NewReader(data))
-	if err != nil {
-		return nil, err
-	}
 
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("Content-Length", strconv.Itoa(len(data)))
-
-	for k, v := range headers {
-		req.Header.Add(k, v)
-	}
-
-	for i := 0; i <= c.MaxRetry; i++ {
-		resp, err := c.Client.Do(req)
+	for i, t := 0, c.Timeout; i <= c.MaxRetry; i, t = i+1, t*2 {
+		req, err := http.NewRequest("POST", url, strings.NewReader(data))
 		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.Header.Add("Content-Length", strconv.Itoa(len(data)))
+
+		for k, v := range headers {
+			req.Header.Add(k, v)
+		}
+
+		s := time.Now().UnixNano() // debug
+
+		client := &http.Client{Transport: c.Transport, Timeout: t}
+		resp, err := client.Do(req)
+		if err != nil {
+			if strings.Contains(err.Error(), "Client.Timeout exceeded") {
+				continue
+			}
+
 			return nil, err
 		}
 
@@ -191,7 +200,7 @@ func NewClient(appKey, hmKey string) *Client {
 	return &Client{
 		AppKey:        appKey,
 		HmKey:         hmKey,
-		Client:        &http.Client{Transport: tr},
+		Transport:     tr,
 		BaseURL:       "https://api.2ch.net",
 		MaxRetry:      5,
 		SessionMaxAge: 6 * time.Hour,
