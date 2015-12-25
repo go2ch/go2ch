@@ -52,8 +52,6 @@ func (c *Client) makeRequest(path string, headers map[string]string, data string
 			req.Header.Add(k, v)
 		}
 
-		s := time.Now().UnixNano() // debug
-
 		client := &http.Client{Transport: c.Transport, Timeout: t}
 		resp, err := client.Do(req)
 		if err != nil {
