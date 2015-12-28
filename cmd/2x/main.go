@@ -39,7 +39,9 @@ func main() {
 		api.Auth(*roninID, *roninPW)
 	}
 
-	proxy := &httputil.ReverseProxy{Director: func(req *http.Request) {}}
+	proxy := &httputil.ReverseProxy{Director: func(req *http.Request) {
+		req.Header.Set("User-Agent", "Monazilla/1.00 (JaneStyle/3.83)")
+	}}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
 		m := datURL.FindStringSubmatch(req.URL.String())
