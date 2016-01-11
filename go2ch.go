@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -29,6 +30,7 @@ type Client struct {
 	pass          string
 	session       string
 	sessionExpire time.Time
+	authWait      sync.WaitGroup
 }
 
 type response struct {
@@ -80,6 +82,9 @@ func (c *Client) makeRequest(path string, headers map[string]string, data string
 
 // Auth sends authentication request
 func (c *Client) Auth(user, pass string) error {
+	c.authWait.Add(1)
+	defer c.authWait.Done()
+
 	ct := strconv.FormatInt(time.Now().Unix(), 10)
 	mac := hmac.New(sha256.New, []byte(c.HmKey))
 	mac.Write([]byte(c.AppKey + ct))
@@ -122,6 +127,8 @@ func (c *Client) Auth(user, pass string) error {
 
 // Get sends thread request
 func (c *Client) Get(server, bbs, key string, reqHeaders map[string]string) (*http.Response, error) {
+	c.authWait.Wait()
+
 	if c.session == "" {
 		err := c.Auth(c.user, c.pass)
 		if err != nil {
