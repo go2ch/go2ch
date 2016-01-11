@@ -16,5 +16,5 @@ or download binary from [releases page](https://github.com/go2ch/go2ch/releases)
 ### Usage
 
 ```
-$ 2x -appkey=<APP_KEY> -hmkey=<HM_KEY> [-addr=:8080]
+$ 2x -appkey=<APP_KEY> -hmkey=<HM_KEY> [-id=<RONIN_ID> -pw=<RONIN_PASS>] [-addr=:8080]
 ```
