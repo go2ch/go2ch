@@ -1,11 +1,9 @@
 language: go
 go:
-  - 1.5.1
+  - 1.5.3
 sudo: false
 before_install:
   - openssl aes-256-cbc -K $encrypted_3a1893bbf6e7_key -iv $encrypted_3a1893bbf6e7_iv -in go2ch_test.json.enc -out go2ch_test.json -d
-script:
-  - go get -v ./...
 before_deploy:
   - go get github.com/laher/goxc
   - goxc -tasks "xc archive" -bc "windows,darwin" -d . -wd cmd/2x
@@ -17,6 +15,5 @@ deploy:
   file: snapshot/*.zip
   skip_cleanup: true
   on:
-    go: 1.5.1
     tags: true
     all_branches: true
