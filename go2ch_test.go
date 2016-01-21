@@ -30,8 +30,7 @@ func TestRequest(t *testing.T) {
 
 	if err != nil {
 		if err.Error() == "forbidden" {
-			t.Log("API access forbidden")
-			t.Skip()
+			t.Skip("API access forbidden")
 		}
 
 		t.Fatalf("unexpected error: %s", err)
