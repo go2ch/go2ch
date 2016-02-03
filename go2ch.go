@@ -6,7 +6,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -31,11 +30,6 @@ type Client struct {
 	session       string
 	sessionExpire time.Time
 	authWait      sync.WaitGroup
-}
-
-type response struct {
-	io.Reader
-	io.Closer
 }
 
 func (c *Client) makeRequest(path string, headers map[string]string, data string) (*http.Response, error) {
@@ -175,7 +169,7 @@ func (c *Client) Get(server, bbs, key string, reqHeaders map[string]string) (*ht
 			if err != nil {
 				return nil, err
 			}
-			resp.Body = response{reader, resp.Body}
+			resp.Body = ioutil.NopCloser(reader)
 		}
 		return resp, nil
 	case "8": // StatusCode: 200/501
