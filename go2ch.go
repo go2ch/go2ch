@@ -41,8 +41,10 @@ func (c *Client) makeRequest(path string, headers map[string]string, data string
 			return nil, err
 		}
 
-		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-		req.Header.Add("Content-Length", strconv.Itoa(len(data)))
+		req.Header = map[string][]string{
+			"Content-Type":   {"application/x-www-form-urlencoded"},
+			"Content-Length": {strconv.Itoa(len(data))},
+		}
 
 		for k, v := range headers {
 			req.Header.Add(k, v)
