@@ -26,8 +26,8 @@ var (
 func main() {
 	flag.Parse()
 
-	if *appKey == "" || *hmKey == "" {
-		fmt.Println("no api key")
+	if len(*appKey) != 30 || len(*hmKey) != 30 {
+		fmt.Println("invalid length api key")
 		flag.Usage()
 		os.Exit(1)
 	}
