@@ -26,7 +26,7 @@ func TestRequest(t *testing.T) {
 	setup()
 
 	headers := make(map[string]string)
-	resp, err := c.Get("peace", "unix", "999935885", headers)
+	resp, err := c.Get("echo", "unix", "999935885", headers)
 
 	if err != nil {
 		if err.Error() == "forbidden" {
