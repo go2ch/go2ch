@@ -29,7 +29,7 @@ type Client struct {
 	pass          string
 	session       string
 	sessionExpire time.Time
-	authWait      sync.WaitGroup
+	mutex         sync.Mutex
 }
 
 func (c *Client) makeRequest(path string, headers map[string]string, data string) (*http.Response, error) {
@@ -79,9 +79,6 @@ func (c *Client) makeRequest(path string, headers map[string]string, data string
 
 // Auth sends authentication request
 func (c *Client) Auth(user, pass string) error {
-	c.authWait.Add(1)
-	defer c.authWait.Done()
-
 	ct := strconv.FormatInt(time.Now().Unix(), 10)
 	mac := hmac.New(sha256.New, []byte(c.HmKey))
 	mac.Write([]byte(c.AppKey + ct))
@@ -124,16 +121,19 @@ func (c *Client) Auth(user, pass string) error {
 
 // Get sends thread request
 func (c *Client) Get(server, bbs, key string, reqHeaders map[string]string) (*http.Response, error) {
-	c.authWait.Wait()
+	c.mutex.Lock()
 
 	if c.session == "" {
 		err := c.Auth(c.user, c.pass)
 		if err != nil {
+			c.mutex.Unlock()
 			return nil, err
 		}
 	} else if time.Since(c.sessionExpire) >= 0 && c.Auth(c.user, c.pass) != nil {
 		c.sessionExpire = time.Now().Add(c.SessionMaxAge)
 	}
+
+	c.mutex.Unlock()
 
 	path := strings.Join([]string{"/v1", server, bbs, key}, "/")
 	mac := hmac.New(sha256.New, []byte(c.HmKey))
