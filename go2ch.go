@@ -62,6 +62,7 @@ func (c *Client) makeRequest(path string, headers map[string]string, data string
 
 		switch resp.StatusCode {
 		case 403:
+			resp.Body.Close()
 			return nil, fmt.Errorf("forbidden")
 		case 400, 500, 502:
 			if resp.Header.Get("Server") == "cloudflare-nginx" {
