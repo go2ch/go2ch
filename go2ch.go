@@ -42,8 +42,10 @@ func (c *Client) makeRequest(path string, headers map[string]string, data string
 		}
 
 		req.Header = map[string][]string{
+			"Accept":         {"text/html, */*"},
 			"Content-Type":   {"application/x-www-form-urlencoded"},
 			"Content-Length": {strconv.Itoa(len(data))},
+			"User-Agent":     {"Mozilla/3.0 (compatible; JaneStyle/3.83)"},
 		}
 
 		for k, v := range headers {
@@ -86,9 +88,7 @@ func (c *Client) Auth(user, pass string) error {
 	data := "ID=" + user + "&PW=" + pass + "&KY=" + c.AppKey + "&CT=" + ct + "&HB=" + hb
 
 	headers := map[string]string{
-		"Accept":     "text/html, */*",
-		"User-Agent": "Mozilla/3.0 (compatible; JaneStyle/3.83)",
-		"X-2ch-UA":   "JaneStyle/3.83",
+		"X-2ch-UA": "JaneStyle/3.83",
 	}
 
 	resp, err := c.makeRequest("/v1/auth/", headers, data)
@@ -145,8 +145,6 @@ func (c *Client) Get(server, bbs, key string, reqHeaders map[string]string) (*ht
 	for k, v := range reqHeaders {
 		headers[k] = v
 	}
-	headers["Accept"] = "text/html, */*"
-	headers["User-Agent"] = "Mozilla/3.0 (compatible; JaneStyle/3.83)"
 
 	var addedGzip bool
 	if headers["Accept-Encoding"] == "" && headers["Range"] == "" {
