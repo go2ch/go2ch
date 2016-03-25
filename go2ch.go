@@ -16,8 +16,8 @@ import (
 
 // Client is unofficial 2ch API client
 type Client struct {
-	AppKey string
-	HmKey  string
+	appKey string
+	hmKey  string
 
 	Transport     *http.Transport
 	BaseURL       string
@@ -82,10 +82,10 @@ func (c *Client) makeRequest(path string, headers map[string]string, data string
 // Auth sends authentication request
 func (c *Client) Auth(user, pass string) error {
 	ct := strconv.FormatInt(time.Now().Unix(), 10)
-	mac := hmac.New(sha256.New, []byte(c.HmKey))
-	mac.Write([]byte(c.AppKey + ct))
+	mac := hmac.New(sha256.New, []byte(c.hmKey))
+	mac.Write([]byte(c.appKey + ct))
 	hb := hex.EncodeToString(mac.Sum(nil))
-	data := "ID=" + user + "&PW=" + pass + "&KY=" + c.AppKey + "&CT=" + ct + "&HB=" + hb
+	data := "ID=" + user + "&PW=" + pass + "&KY=" + c.appKey + "&CT=" + ct + "&HB=" + hb
 
 	headers := map[string]string{
 		"X-2ch-UA": "JaneStyle/3.83",
@@ -136,10 +136,10 @@ func (c *Client) Get(server, bbs, key string, reqHeaders map[string]string) (*ht
 	c.mutex.Unlock()
 
 	path := strings.Join([]string{"/v1", server, bbs, key}, "/")
-	mac := hmac.New(sha256.New, []byte(c.HmKey))
-	mac.Write([]byte(path + c.session + c.AppKey))
+	mac := hmac.New(sha256.New, []byte(c.hmKey))
+	mac.Write([]byte(path + c.session + c.appKey))
 	hobo := hex.EncodeToString(mac.Sum(nil))
-	data := "sid=" + c.session + "&hobo=" + hobo + "&appkey=" + c.AppKey
+	data := "sid=" + c.session + "&hobo=" + hobo + "&appkey=" + c.appKey
 
 	headers := make(map[string]string)
 	for k, v := range reqHeaders {
@@ -198,8 +198,8 @@ func NewClient(appKey, hmKey string) *Client {
 	}
 
 	return &Client{
-		AppKey:        appKey,
-		HmKey:         hmKey,
+		appKey:        appKey,
+		hmKey:         hmKey,
 		Transport:     tr,
 		BaseURL:       "https://api.2ch.net",
 		MaxRetry:      5,
