@@ -20,7 +20,7 @@ var (
 	roninID = flag.String("id", "", "Ronin login ID")
 	roninPW = flag.String("pw", "", "Ronin login password")
 
-	datURL = regexp.MustCompile(`^http://(\w+)\.(?:2ch\.net|bbspink\.com)/(\w+)/dat/(\d+)\.dat`)
+	datURL = regexp.MustCompile(`^http://(\w+)\.(?:2ch\.net|bbspink\.com)(?::80)?/(\w+)/dat/(\d+)\.dat`)
 )
 
 func main() {
