@@ -160,7 +160,11 @@ func (c *Client) Get(server, bbs, key string, reqHeaders map[string]string) (*ht
 	switch resp.Header.Get("Thread-Status") {
 	case "0": // StatusCode: 404
 		resp.Body.Close()
-		return nil, fmt.Errorf("not found/invalid range request")
+
+		if headers["Range"] != "" {
+			return nil, StatusInvalidRangeRequest
+		}
+		return nil, StatusNotFound
 	case "1":
 		if addedGzip && resp.Header.Get("Content-Encoding") == "gzip" {
 			resp.Header.Del("Content-Encoding")
@@ -175,7 +179,7 @@ func (c *Client) Get(server, bbs, key string, reqHeaders map[string]string) (*ht
 		return resp, nil
 	case "8": // StatusCode: 200/501
 		resp.Body.Close()
-		return nil, fmt.Errorf("thread dat-out")
+		return nil, StatusThreadDatOut
 	}
 
 	resp.Body.Close()
@@ -184,9 +188,9 @@ func (c *Client) Get(server, bbs, key string, reqHeaders map[string]string) (*ht
 	case 401:
 		c.session = ""
 		return c.Get(server, bbs, key, reqHeaders)
-	default:
-		return nil, fmt.Errorf("unknown error")
 	}
+
+	return nil, StatusUnknownError
 }
 
 // NewClient returns new Client instance

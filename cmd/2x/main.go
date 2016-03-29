@@ -64,15 +64,9 @@ func main() {
 
 		resp, err := api.Get(m[1], m[2], m[3], headers)
 		if err != nil {
-			switch err.Error() {
-			case "not found/invalid range request":
-				if headers["Range"] != "" {
-					w.WriteHeader(416)
-				} else {
-					w.WriteHeader(302)
-				}
-			case "thread dat-out":
-				w.WriteHeader(302)
+			switch e := err.(type) {
+			case *go2ch.ThreadError:
+				w.WriteHeader(e.StatusCode)
 			default:
 				w.WriteHeader(500)
 			}
