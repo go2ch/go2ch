@@ -8,10 +8,10 @@ import (
 	"testing"
 )
 
+var apiKey map[string]string
 var c *Client
 
-func setup() {
-	var apiKey map[string]string
+func TestMain(m *testing.M) {
 	keyFile, err := ioutil.ReadFile("./go2ch_test.json")
 	if err != nil {
 		fmt.Println(err)
@@ -20,11 +20,11 @@ func setup() {
 
 	json.Unmarshal(keyFile, &apiKey)
 	c = NewClient(apiKey["appkey"], apiKey["hmkey"])
+
+	os.Exit(m.Run())
 }
 
 func TestRequest(t *testing.T) {
-	setup()
-
 	headers := make(map[string]string)
 	resp, err := c.Get("echo", "unix", "999935885", headers)
 
