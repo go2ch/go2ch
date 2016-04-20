@@ -16,10 +16,11 @@ import (
 
 // Client is unofficial 2ch API client
 type Client struct {
+	Client *http.Client
+
 	appKey string
 	hmKey  string
 
-	Transport     *http.Transport
 	BaseURL       string
 	MaxRetry      int
 	SessionMaxAge time.Duration
@@ -52,8 +53,7 @@ func (c *Client) makeRequest(path string, headers map[string]string, data string
 			req.Header.Add(k, v)
 		}
 
-		client := &http.Client{Transport: c.Transport, Timeout: t}
-		resp, err := client.Do(req)
+		resp, err := c.Client.Do(req)
 		if err != nil {
 			if strings.Contains(err.Error(), "Client.Timeout exceeded") {
 				continue
@@ -202,9 +202,9 @@ func NewClient(appKey, hmKey string) *Client {
 	}
 
 	return &Client{
+		Client:        &http.Client{Transport: tr},
 		appKey:        appKey,
 		hmKey:         hmKey,
-		Transport:     tr,
 		BaseURL:       "https://api.2ch.net",
 		MaxRetry:      5,
 		SessionMaxAge: 6 * time.Hour,
