@@ -161,7 +161,7 @@ func (c *Client) Get(server, bbs, key string, reqHeaders map[string]string) (*ht
 	case "0": // StatusCode: 404
 		resp.Body.Close()
 
-		if headers["Range"] != "" {
+		if headers["Range"] != "" && resp.Header.Get("Accept-Ranges") != "" {
 			return nil, StatusInvalidRangeRequest
 		}
 		return nil, StatusNotFound
