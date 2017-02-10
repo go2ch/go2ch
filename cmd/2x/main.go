@@ -40,7 +40,7 @@ func main() {
 	}
 
 	rvp := &httputil.ReverseProxy{Director: func(req *http.Request) {
-		req.Header.Set("User-Agent", "Monazilla/1.00 (JaneStyle/3.83)")
+		req.Header.Set("User-Agent", "Monazilla/1.00 (JaneStyle/3.84)")
 	}}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {

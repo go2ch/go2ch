@@ -46,7 +46,7 @@ func (c *Client) makeRequest(path string, headers map[string]string, data string
 			"Accept":         {"text/html, */*"},
 			"Content-Type":   {"application/x-www-form-urlencoded"},
 			"Content-Length": {strconv.Itoa(len(data))},
-			"User-Agent":     {"Mozilla/3.0 (compatible; JaneStyle/3.83)"},
+			"User-Agent":     {"Mozilla/3.0 (compatible; JaneStyle/3.84)"},
 		}
 
 		for k, v := range headers {
@@ -88,7 +88,7 @@ func (c *Client) Auth(user, pass string) error {
 	data := "ID=" + user + "&PW=" + pass + "&KY=" + c.appKey + "&CT=" + ct + "&HB=" + hb
 
 	headers := map[string]string{
-		"X-2ch-UA": "JaneStyle/3.83",
+		"X-2ch-UA": "JaneStyle/3.84",
 	}
 
 	resp, err := c.makeRequest("/v1/auth/", headers, data)
